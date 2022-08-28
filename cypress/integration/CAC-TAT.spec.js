@@ -7,6 +7,8 @@
 
 describe('Central de Atendimento ao Cliente TAT', function() {
 
+    const THREE_SECONDS_IN_MILISECONDS = 3000
+
     beforeEach(() => {
         cy.visit('./src/index.html')
     })
@@ -179,6 +181,87 @@ describe('Central de Atendimento ao Cliente TAT', function() {
     it('acessa a página da política de privacidade removendo o target e então clicanco no link', function(){
         cy.get('#privacy a').invoke('removeAttr', 'target').click()
         cy.contains('Talking About Testing')
+    })
+
+     // Exercício 22: Congelando o relogio do navegador 
+     // para não precisar esperar o tempo de 3 segundos para sumir a mensagem de sucesso
+    it('preenche os campos obrigatórios e envia o formulário', function(){
+        const longText = 'TESTE, TESTE, TESTE, TESTE, TESTE, TESTE, TESTE, TESTE, TESTE, TESTETESTE, TESTE, TESTE, TESTE, TESTETESTE, TESTE, TESTE, TESTE, TESTETESTE, TESTE, TESTE, TESTE, TESTE'
+        cy.clock()
+        cy.get('#firstName').type('Priscila')
+        cy.get('#lastName').type('Formaggio')
+        cy.get('#email').type('pribelform@gmail.com')
+        cy.get('#phone').type('14997848622')
+        cy.get('#open-text-area').type(longText, {delay: 0})
+        cy.get('button[type="submit"]').click()
+        cy.get('span[class="success"]').should('be.visible')
+        cy.tick(THREE_SECONDS_IN_MILISECONDS)
+        cy.get('span[class="success"]').should('not.be.visible')        
+    })
+
+    // Exercício 23: Lodash - Cypress.times
+    Cypress._.times(3, function(){
+        it('preenche os campos obrigatórios e envia o formulário', function(){
+            const longText = 'TESTE, TESTE, TESTE, TESTE, TESTE, TESTE, TESTE, TESTE, TESTE, TESTETESTE, TESTE, TESTE, TESTE, TESTETESTE, TESTE, TESTE, TESTE, TESTETESTE, TESTE, TESTE, TESTE, TESTE'
+            cy.clock()
+            cy.get('#firstName').type('Priscila')
+            cy.get('#lastName').type('Formaggio')
+            cy.get('#email').type('pribelform@gmail.com')
+            cy.get('#phone').type('14997848622')
+            cy.get('#open-text-area').type(longText, {delay: 0})
+            cy.get('button[type="submit"]').click()
+            cy.get('span[class="success"]').should('be.visible')
+            cy.tick(THREE_SECONDS_IN_MILISECONDS)
+            cy.get('span[class="success"]').should('not.be.visible')        
+        })
+    })
+
+    // Exercício 24: Lodash - Cypress.times
+    it('exibe e esconde as mensagens de sucesso e erro usando o .invoke()', function(){
+        cy.get('.success')
+        .should('not.be.visible')
+        .invoke('show')
+        .should('be.visible')
+        .and('contain', 'Mensagem enviada com sucesso.')
+        .invoke('hide')
+        .should('not.be.visible')
+        cy.get('.error')
+        .should('not.be.visible')
+        .invoke('show')
+        .should('be.visible')
+        .and('contain', 'Valide os campos obrigatórios!')
+        .invoke('hide')
+        .should('not.be.visible')   
+    })
+    
+    // Exercício 25: 
+    it('preenche a area de texto usando o comando invoke', function(){
+        const longText = Cypress._.repeat('0123456789', 20)
+
+        cy.get('#open-text-area')
+            .invoke('val', longText)
+            .should('have.value', longText)
+    })
+
+    // Exercício 26: 
+    it('faz uma requisição HTTP', function(){
+        cy.request('https://cac-tat.s3.eu-central-1.amazonaws.com/index.html')
+            .should(function(response){
+                const {status, statusText, body} = response 
+                expect(status).to.equal(200)
+                expect(statusText).to.equal('OK')
+                expect(body).to.include('CAC TAT')
+            })
+    })
+
+    // Exercício 27: 
+    it.only('encontre o gato escondido', function(){
+        cy.get('#cat')
+        .invoke('show')
+        .should('be.visible')
+
+        cy.get('#title')
+        .invoke('text', 'PRI')
     })
 
 })
